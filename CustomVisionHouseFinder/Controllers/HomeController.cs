@@ -1,37 +1,58 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+using CustomVisionHouseFinder.Library;
 using CustomVisionHouseFinder.Models;
+using CustomVisionHouseFinder.Models.Home;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
-namespace CustomVisionHouseFinder.Controllers
-{
-    public class HomeController : Controller
-    {
-        public IActionResult Index()
-        {
-            return View();
-        }
+namespace CustomVisionHouseFinder.Controllers {
+	public class HomeController: Controller {
+		private readonly IHostingEnvironment hostingEnvironment;
+		private readonly IMemoryCache cache;
 
-        public IActionResult About()
-        {
-            ViewData["Message"] = "Your application description page.";
+		public HomeController( IHostingEnvironment hostingEnvironment, IMemoryCache memoryCache ) {
+			this.hostingEnvironment = hostingEnvironment;
+			this.cache = memoryCache;
+		}
 
-            return View();
-        }
+		public async Task<IActionResult> Index() {
+			var contentRootPath = hostingEnvironment.ContentRootPath;
 
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
+			var model = new List<HouseModel>();
+			foreach( var file in Directory.EnumerateFiles( Path.Combine( contentRootPath, "wwwroot/images/Houses" ) ) ) {
+				model.Add(
+					new HouseModel
+						{
+							Name = "A",
+							HasThirdStoryWindow = processPrediction( await getPrediction( file ) ),
+							ImageUrl = Url.Content( "~/images/Houses/" + Path.GetFileName( file ) )
+						} );
+			}
 
-            return View();
-        }
+			return View( model );
+		}
 
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-    }
+		private async Task<PredictionResult> getPrediction( string file ) {
+			if( cache.TryGetValue( file, out PredictionResult prediction ) )
+				return prediction;
+
+			var predictionResult = await CustomVisionService.MakePredictionRequest( file );
+			cache.Set( file, predictionResult );
+			return predictionResult;
+		}
+
+		private bool processPrediction( PredictionResult predictionResult ) {
+			return ( predictionResult.Predictions.SingleOrDefault( p => p.TagName == "has-third-story-window" )?.Probability ?? 0 ) >
+			       ( predictionResult.Predictions.SingleOrDefault( p => p.TagName == "no-third-story-window" )?.Probability ?? 0 );
+		}
+
+		public IActionResult Error() {
+			return View( new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier } );
+		}
+	}
 }

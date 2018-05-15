@@ -5,11 +5,30 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="ReadMe.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.8" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\images\Houses\100632683_389b72f532_b.jpg" />
+    <None Include="wwwroot\images\Houses\187943195_05de9fe99b_b.jpg" />
+    <None Include="wwwroot\images\Houses\2422497911_51aefdf442_b.jpg" />
+    <None Include="wwwroot\images\Houses\250003887_cb23dd8908_b.jpg" />
+    <None Include="wwwroot\images\Houses\4560794679_99f9c91598_b.jpg" />
+    <None Include="wwwroot\images\Houses\5336594509_185d4b80f5_b.jpg" />
+    <None Include="wwwroot\images\Houses\5815851752_68b2e85747_o.jpg" />
+    <None Include="wwwroot\images\Houses\8200899775_8f8dd526d7_k.jpg" />
+    <None Include="wwwroot\images\Houses\8634744945_e6531ec6c8_k.jpg" />
+    <None Include="wwwroot\images\Houses\9217870774_15c6596306_k.jpg" />
+    <None Include="wwwroot\images\Houses\951557472_a29ab5bd7d_o.jpg" />
   </ItemGroup>
 
 </Project>
